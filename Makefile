@@ -1,7 +1,15 @@
-LOCAL_BIN:=$(CURDIR)/bin
+# Установка зависимостей через .bat файл
+install-deps:
+	@call install-deps.bat
 
-install-golangci-lint:
-	GOBIN=$(LOCAL_BIN) go install github.com/golangci/golangci-lint/cmd/golangci-lint@v1.61.0
+# Получение зависимостей через Go
+get-deps:
+	@powershell -Command "go get -u google.golang.org/protobuf/cmd/protoc-gen-go"
+	@powershell -Command "go get -u google.golang.org/grpc/cmd/protoc-gen-go-grpc"
 
-lint:
-	$(LOCAL_BIN)/golangci-lint run ./... --config .golangci.pipeline.yaml
+# Генерация файлов
+generate:
+	@call generate.bat
+
+generate-note-api:
+	@echo "Generating the note API..."

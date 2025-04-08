@@ -1,0 +1,29 @@
+syntax = "proto3";
+package note_v1;
+
+import "google/protobuf/timestamp.proto";
+
+option go_package = "github.com/MariaPopova99/microservices/pkg/note_v1;note_v1";
+
+service LongShortV1 {
+    rpc GetShort(GetShortRequest) returns (GetShortResponse);
+    rpc GetLong(GetLongRequest) returns (GetLongResponse);
+}
+
+message GetShortRequest {
+    string longtUrl = 1;
+}
+
+message GetShortResponse {
+    string shortgtUrl = 1;
+    google.protobuf.Timestamp generated_at = 2;
+}
+
+message GetLongRequest {
+    string shortgtUrl = 1;
+}
+
+message GetLongResponse {
+    string longtUrl = 1;
+    google.protobuf.Timestamp retrieved_at = 2;
+}
