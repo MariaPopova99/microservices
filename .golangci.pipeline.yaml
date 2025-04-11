@@ -1,35 +1,19 @@
-# More info on config here: https://golangci-lint.run/usage/configuration/#config-file
+version: "2"  # Версия конфигурации
+
 run:
   concurrency: 8
   timeout: 10m
   issues-exit-code: 1
   tests: true
-  exclude-files:
-    - \.pb\.go$
-    - \.pb\.gw\.go$
-  exclude-dirs:
-    - bin
-    - vendor
-    - var
-    - tmp
-    - .cache
 
 output:
   formats:
-    - format: colored-line-number
-  print-issued-lines: true
-  print-linter-name: true
-
-linters-settings:
-  govet:
-  dupl:
-    threshold: 100
-  goconst:
-    min-len: 2
-    min-occurrences: 2
+    checkstyle:
+      path: 'report.xml'  # Путь для отчета в формате Checkstyle
+    json:
+      path: stdout  # Путь для вывода в формате JSON
 
 linters:
-  disable-all: true
   enable:
     - errcheck
     - goconst
@@ -38,13 +22,24 @@ linters:
     - govet
     - ineffassign
     - revive
-    - typecheck
     - unused
+  disable: []  # Линтеры, которые нужно выключить
+
+linters-settings:
+  govet:
+    check-shadowing: true  # Включаем проверку на переопределение переменных
+  dupl:
+    threshold: 100  # Порог для дублирующихся кусков кода
+  goconst:
+    min-len: 2  # Минимальная длина строки, которая может быть вынесена как константа
+    min-occurrences: 2  # Минимальное количество повторений строки для вынесения в константу
+  errcheck:
+    ignore-closed: true  # Игнорируем закрытые каналы при проверке ошибок
 
 issues:
   exclude-use-default: false
   exclude:
-    - G104 # _ instead of err checks
-    - exported func .* returns unexported type .*, which can be annoying to use
-    - should have a package comment
-    - don't use an underscore in package name
+    - "G104"  # Ошибки, связанные с игнорированием ошибок в коде
+    - "exported func .* returns unexported type .*"  # Ошибка с возвращаемым типом
+    - "should have a package comment"  # Ошибка с отсутствием комментария к пакету
+    - "don't use an underscore in package name"  # Использование подчеркивания в имени пакета
