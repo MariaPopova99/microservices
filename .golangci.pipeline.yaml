@@ -4,7 +4,6 @@ run:
   timeout: 10m
   issues-exit-code: 1
   tests: true
-  # Удалена секция issues, так как она вызывает ошибку
   exclude-files:
     - \.pb\.go$
     - \.pb\.gw\.go$
@@ -17,13 +16,12 @@ run:
 
 output:
   formats:
-    - colored-line-number  # Теперь это массив
+    - format: colored-line-number
   print-issued-lines: true
   print-linter-name: true
 
 linters-settings:
   govet:
-    # Убрана настройка shadow, которая вызывает ошибку
   dupl:
     threshold: 100
   goconst:
