@@ -22,16 +22,16 @@ type server struct {
 func (s *server) GetShort(ctx context.Context, req *desc.GetShortRequest) (*desc.GetShortResponse, error) {
 
 	return &desc.GetShortResponse{
-		ShortgtUrl:  "Short" + req.GetLongtUrl(), // Или что-то другое
-		GeneratedAt: timestamppb.Now(),
+		Short_Url: "Short" + req.GetLong_Url(), // Или что-то другое
+		CreatedAt: timestamppb.Now(),
 	}, nil
 }
 
 func (s *server) GetLong(ctx context.Context, req *desc.GetLongRequest) (*desc.GetLongResponse, error) {
 
 	return &desc.GetLongResponse{
-		LongtUrl:    "longUrl_" + req.GetShortgtUrl(), // Или что-то другое
-		RetrievedAt: timestamppb.Now(),
+		Long_Url:  "longUrl_" + req.GetShort_Url(), // Или что-то другое
+		CreatedAt: timestamppb.Now(),
 	}, nil
 }
 

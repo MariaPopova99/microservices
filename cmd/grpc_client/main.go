@@ -20,23 +20,23 @@ func getLongUrl(c desc.LongShortV1Client, url string) {
 	ctx, cancel := context.WithTimeout(context.Background(), time.Second)
 	defer cancel()
 
-	r, err := c.GetLong(ctx, &desc.GetLongRequest{ShortgtUrl: url})
+	r, err := c.GetLong(ctx, &desc.GetLongRequest{Short_Url: url})
 	if err != nil {
 		log.Fatalf("failed to get note by id: %v", err)
 	}
-	log.Printf(color.RedString("Note info:\n"), color.GreenString("%+v", r.GetLongtUrl()))
+	log.Printf(color.RedString("Note info:\n"), color.GreenString("%+v", r.GetLong_Url()))
 }
 
 func getShortUrl(c desc.LongShortV1Client, url string) {
 	ctx, cancel := context.WithTimeout(context.Background(), time.Second)
 	defer cancel()
 
-	r, err := c.GetShort(ctx, &desc.GetShortRequest{LongtUrl: url})
+	r, err := c.GetShort(ctx, &desc.GetShortRequest{Long_Url: url})
 	if err != nil {
 		log.Fatalf("failed to get note by id: %v", err)
 	}
 
-	log.Printf(color.RedString("Note info:\n"), color.GreenString("%+v", r.GetShortgtUrl()))
+	log.Printf(color.RedString("Note info:\n"), color.GreenString("%+v", r.GetShort_Url()))
 }
 
 func main() {
