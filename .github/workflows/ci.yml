@@ -1,0 +1,13 @@
+name: CI
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  lint:
+    uses: ./.github/workflows/lint-reusable.yml
+    with:
+      modules: "inventory order payment"
+      go-version: "1.24"
+      golangci-lint-version: "v2.0.2"
