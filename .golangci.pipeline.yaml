@@ -12,10 +12,12 @@ run:
     - ".*\\.pb\\.go"
     - ".*\\.pb\\.gw\\.go"
 
-output:
+output: # Настройки вывода результатов линтинга
   formats:
-    - checkstyle
-    - json
+    text: # Формат вывода в терминал
+      print-linter-name: true  # Показывать имя линтера рядом с каждым сообщением
+      print-issued-lines: true  # Показывать строку кода, где найдена проблема
+      colors: true  # Использовать цветной вывод (для лучшей читаемости)
 
 linters-settings:
   govet: {}
