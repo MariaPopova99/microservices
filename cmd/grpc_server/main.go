@@ -8,6 +8,7 @@ import (
 
 	configg "github.com/MariaPopova99/microservices/internal/config"
 	config "github.com/MariaPopova99/microservices/internal/config/env"
+	"github.com/MariaPopova99/microservices/internal/model"
 	repository "github.com/MariaPopova99/microservices/internal/repository/urls"
 	urls "github.com/MariaPopova99/microservices/internal/repository/urls/model"
 	"github.com/jackc/pgx/v4/pgxpool"
@@ -32,7 +33,7 @@ type server struct {
 }
 
 func (s *server) GetShort(ctx context.Context, req *desc.GetShortRequest) (*desc.GetShortResponse, error) {
-	shortUrl, err := s.urlRepository.GetShort(ctx, req.GetLong_Url())
+	shortUrl, err := s.urlRepository.GetShort(ctx, &model.LongUrls{req.GetLong_Url()})
 	if err != nil {
 		return nil, err
 	}
@@ -44,12 +45,12 @@ func (s *server) GetShort(ctx context.Context, req *desc.GetShortRequest) (*desc
 }
 
 func (s *server) GetLong(ctx context.Context, req *desc.GetLongRequest) (*desc.GetLongResponse, error) {
-	longtUrl, err := s.urlRepository.GetLong(ctx, req.GetShort_Url())
+	longtUrl, err := s.urlRepository.GetLong(ctx, &model.ShortUrls{req.GetShort_Url()})
 	if err != nil {
 		return nil, err
 	}
 	return &desc.GetLongResponse{
-		Long_Url:  longtUrl.LongUrl, // Или что-то другое
+		Long_Url:  longtUrl.LongUrl,
 		CreatedAt: timestamppb.New(longtUrl.CreatedAt),
 	}, nil
 }
