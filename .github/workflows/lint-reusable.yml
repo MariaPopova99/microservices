@@ -1,0 +1,51 @@
+name: Lint Reusable
+
+on:
+  workflow_call:
+    inputs:
+      modules:
+        required: true
+        type: string
+      go-version:
+        required: true
+        type: string
+      golangci-lint-version:
+        required: true
+        type: string
+
+jobs:
+  golangci-lint:
+    name: Lint all Go modules
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: 📦 Checkout code
+        uses: actions/checkout@v4.2.2
+
+      - name: 🛠 Set up Go
+        uses: actions/setup-go@v5.4.0
+        with:
+          go-version: ${{ inputs.go-version }}
+
+      - name: 🐾 Show go.work (debug)
+        run: cat go.work || echo "❗ go.work not found"
+
+      - name: 📥 Install golangci-lint
+        run: |
+          curl -sSfL https://raw.githubusercontent.com/golangci/golangci-lint/master/install.sh \
+            | sh -s -- -b . "${{ inputs.golangci-lint-version }}"
+          echo "$PWD" >> $GITHUB_PATH
+
+      - name: ✅ Run golangci-lint on all modules
+        run: |
+          set -e
+          ERR=0
+          for mod in ${{ inputs.modules }}; do
+            echo "🔍 Linting $mod module"
+            if find $mod -name '*.go' | grep -q .; then
+              ./golangci-lint run $mod/... --config=.golangci.yml || ERR=1
+            else
+              echo "⚠️ No Go files in $mod — skipping"
+            fi
+          done
+          exit $ERR
