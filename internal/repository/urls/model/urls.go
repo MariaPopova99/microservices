@@ -19,9 +19,9 @@ type UrlInfo struct {
 }
 
 type UrlFullInfo struct {
-	ID        int64        `db:"id"`
-	ShortUrl  string       `db:"short"`
-	LongUrl   string       `db:"long"`
-	CreatedAt time.Time    `db:"created_at"`
-	UpdatedAt sql.NullTime `db:"updated_at"`
+	ID        int64
+	ShortUrl  string
+	LongUrl   string
+	CreatedAt time.Time
+	UpdatedAt sql.NullTime
 }
