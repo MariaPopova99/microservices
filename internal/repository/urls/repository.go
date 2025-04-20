@@ -3,15 +3,12 @@ package urls
 import (
 	"context"
 	"log"
-	"math/rand"
 	"time"
-
-	"crypto/md5"
-	"encoding/hex"
 
 	db "github.com/MariaPopova99/microservices/internal/db"
 	"github.com/MariaPopova99/microservices/internal/model"
 	repository "github.com/MariaPopova99/microservices/internal/repository"
+	"github.com/MariaPopova99/microservices/internal/service/urls"
 	sq "github.com/Masterminds/squirrel"
 	"github.com/georgysavva/scany/v2/pgxscan"
 	"github.com/jackc/pgx/v5/pgxpool"
@@ -25,11 +22,6 @@ const (
 	longColumn      = "long"
 	createdAtColumn = "created_at"
 	updatedAtColumn = "updated_at"
-)
-
-const (
-	shortURLLength     = 8
-	longURLExtraLength = 6
 )
 
 type repo struct {
@@ -91,7 +83,7 @@ func (r *repo) GetLong(ctx context.Context, shortUrl *model.ShortUrls) (*model.U
 		log.Printf("QueryRow failed: %s", err)
 		if pgxscan.NotFound(err) {
 			log.Printf("Creating new URL for short: %s", shortUrl.ShortUrl)
-			longUrl, err := generateLongUrl(shortUrl)
+			longUrl, err := urls.GenerateLongUrl(shortUrl)
 			if err != nil {
 				return nil, err
 			}
@@ -138,7 +130,7 @@ func (r *repo) GetShort(ctx context.Context, longUrl *model.LongUrls) (*model.Ur
 		log.Printf("QueryRow failed: %s", err)
 		if pgxscan.NotFound(err) {
 			log.Printf("Creating new URL for short: %s", longUrl.LongUrl)
-			shortUrl, err := generateShortUrl(longUrl)
+			shortUrl, err := urls.GenerateShortUrl(longUrl)
 			if err != nil {
 				return nil, err
 			}
@@ -154,24 +146,4 @@ func (r *repo) GetShort(ctx context.Context, longUrl *model.LongUrls) (*model.Ur
 	}
 
 	return &url, nil
-}
-func generateShortUrl(longUrl *model.LongUrls) (*model.ShortUrls, error) {
-	// Создаём хеш от длинного URL
-	hash := md5.Sum([]byte(longUrl.LongUrl))
-
-	shortHash := hex.EncodeToString(hash[:])[:shortURLLength]
-	return &model.ShortUrls{shortHash}, nil
-}
-
-func generateLongUrl(shortUrl *model.ShortUrls) (*model.LongUrls, error) {
-	randomString := func(length int) string {
-		const charset = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789"
-		longUrl := make([]byte, length)
-		for i := range longUrl {
-			longUrl[i] = charset[rand.Intn(len(charset))]
-		}
-		return string(longUrl)
-	}
-	longUrl := shortUrl.ShortUrl + randomString(longURLExtraLength)
-	return &model.LongUrls{longUrl}, nil
 }
