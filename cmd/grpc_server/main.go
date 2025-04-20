@@ -6,6 +6,7 @@ import (
 	"log"
 	"net"
 
+	urlsApi "github.com/MariaPopova99/microservices/internal/api/urls"
 	configg "github.com/MariaPopova99/microservices/internal/config"
 	config "github.com/MariaPopova99/microservices/internal/config/env"
 	"github.com/MariaPopova99/microservices/internal/converter"
@@ -93,7 +94,7 @@ func main() {
 
 	s := grpc.NewServer()
 	reflection.Register(s)
-	desc.RegisterLongShortV1Server(s, &server{urlService: ursServ})
+	desc.RegisterLongShortV1Server(s, urlsApi.NewImplementation(ursServ))
 
 	log.Printf("server listening at %v", lis.Addr())
 
