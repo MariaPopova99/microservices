@@ -9,12 +9,12 @@ import (
 )
 
 func (i *Implementation) GetLong(ctx context.Context, req *desc.GetLongRequest) (*desc.GetLongResponse, error) {
-	long_url, err := i.urlsService.GetLong(ctx, converter.ToShortUrlsFromDesc(req))
+	longUrl, err := i.urlsService.GetLong(ctx, converter.ToShortUrlsFromDesc(req))
 	if err != nil {
 		return nil, err
 	}
 	return &desc.GetLongResponse{
-		Long_Url:  long_url.ShortUrl,
-		CreatedAt: timestamppb.New(long_url.CreatedAt),
+		LongUrl:   longUrl.LongUrl,
+		CreatedAt: timestamppb.New(longUrl.CreatedAt),
 	}, nil
 }

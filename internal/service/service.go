@@ -7,6 +7,6 @@ import (
 )
 
 type LongShortService interface {
-	GetShort(ctx context.Context, LongUrl *model.LongUrls) (*model.UrlFullInfo, error)
+	GetShort(ctx context.Context, longUrl *model.LongUrls) (*model.UrlFullInfo, error)
 	GetLong(ctx context.Context, shortUrl *model.ShortUrls) (*model.UrlFullInfo, error)
 }

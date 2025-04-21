@@ -11,19 +11,19 @@ service LongShortV1 {
 }
 
 message GetShortRequest {
-    string long_Url = 1;
+    string long_url = 1;
 }
 
 message GetShortResponse {
-    string short_Url = 1;
+    string short_url = 1;
     google.protobuf.Timestamp created_at = 2;
 }
 
 message GetLongRequest {
-    string short_Url = 1;
+    string short_url = 1;
 }
 
 message GetLongResponse {
-    string long_Url = 1;
+    string long_url = 1;
     google.protobuf.Timestamp created_at = 2;
 }

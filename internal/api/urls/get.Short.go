@@ -9,12 +9,12 @@ import (
 )
 
 func (i *Implementation) GetShort(ctx context.Context, req *desc.GetShortRequest) (*desc.GetShortResponse, error) {
-	short_url, err := i.urlsService.GetShort(ctx, converter.ToLongUrlsFromDesc(req))
+	shortUrl, err := i.urlsService.GetShort(ctx, converter.ToLongUrlsFromDesc(req))
 	if err != nil {
 		return nil, err
 	}
 	return &desc.GetShortResponse{
-		Short_Url: short_url.ShortUrl,
-		CreatedAt: timestamppb.New(short_url.CreatedAt),
+		ShortUrl:  shortUrl.ShortUrl,
+		CreatedAt: timestamppb.New(shortUrl.CreatedAt),
 	}, nil
 }

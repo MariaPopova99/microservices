@@ -8,24 +8,24 @@ import (
 func ToLongUrlsFromService(longUrl *model.LongUrls) *desc.GetShortRequest {
 
 	return &desc.GetShortRequest{
-		Long_Url: longUrl.LongUrl,
+		LongUrl: longUrl.LongUrl,
 	}
 }
 
 func ToShortUrlsFromService(shortUrls model.ShortUrls) *desc.GetLongRequest {
 	return &desc.GetLongRequest{
-		Short_Url: shortUrls.ShortUrl,
+		ShortUrl: shortUrls.ShortUrl,
 	}
 }
 
 func ToLongUrlsFromDesc(longUrl *desc.GetShortRequest) *model.LongUrls {
 	return &model.LongUrls{
-		LongUrl: longUrl.Long_Url,
+		LongUrl: longUrl.LongUrl,
 	}
 }
 
 func ToShortUrlsFromDesc(shortUrls *desc.GetLongRequest) *model.ShortUrls {
 	return &model.ShortUrls{
-		ShortUrl: shortUrls.Short_Url,
+		ShortUrl: shortUrls.ShortUrl,
 	}
 }

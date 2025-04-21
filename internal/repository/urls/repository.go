@@ -2,15 +2,20 @@ package urls
 
 import (
 	"context"
+	"errors"
 	"log"
+	"strings"
 	"time"
 
-	db "github.com/MariaPopova99/microservices/internal/db"
+	"github.com/MariaPopova99/microservices/internal/db"
 	"github.com/MariaPopova99/microservices/internal/model"
-	repository "github.com/MariaPopova99/microservices/internal/repository"
-	"github.com/MariaPopova99/microservices/internal/service/urls"
+	"github.com/MariaPopova99/microservices/internal/repository"
+	"github.com/MariaPopova99/microservices/internal/repository/urls/converter"
+	repoModel "github.com/MariaPopova99/microservices/internal/repository/urls/model"
 	sq "github.com/Masterminds/squirrel"
 	"github.com/georgysavva/scany/v2/pgxscan"
+	"github.com/jackc/pgconn"
+	"github.com/jackc/pgx"
 	"github.com/jackc/pgx/v5/pgxpool"
 )
 
@@ -77,32 +82,13 @@ func (r *repo) GetLong(ctx context.Context, shortUrl *model.ShortUrls) (*model.U
 		QueryRaw: query,
 	}
 
-	var url model.UrlFullInfo
+	var url repoModel.UrlFullInfo
 	err = pgxscan.Get(ctx, r.db, &url, q.QueryRaw, args...)
 	if err != nil {
-		log.Printf("QueryRow failed: %s", err)
-		if pgxscan.NotFound(err) {
-			log.Printf("Creating new URL for short: %s", shortUrl.ShortUrl)
-			longUrl, err := urls.GenerateLongUrl(shortUrl)
-			if err != nil {
-				return nil, err
-			}
-			id, err := r.CreateNewURL(ctx, shortUrl, longUrl)
-			if err != nil {
-				return nil, err
-			}
-			url = model.UrlFullInfo{
-				ID:        id,
-				ShortUrl:  shortUrl.ShortUrl,
-				LongUrl:   longUrl.LongUrl,
-				CreatedAt: time.Now(),
-			}
-		} else {
-			return nil, err
-		}
+		return nil, err
 	}
 
-	return &url, nil
+	return converter.ToUrlFullInfoFromRepo(&url), nil
 }
 
 func (r *repo) GetShort(ctx context.Context, longUrl *model.LongUrls) (*model.UrlFullInfo, error) {
@@ -124,26 +110,38 @@ func (r *repo) GetShort(ctx context.Context, longUrl *model.LongUrls) (*model.Ur
 		QueryRaw: query,
 	}
 
-	var url model.UrlFullInfo
+	var url repoModel.UrlFullInfo
 	err = pgxscan.Get(ctx, r.db, &url, q.QueryRaw, args...)
+
 	if err != nil {
-		log.Printf("QueryRow failed: %s", err)
-		if pgxscan.NotFound(err) {
-			log.Printf("Creating new URL for short: %s", longUrl.LongUrl)
-			shortUrl, err := urls.GenerateShortUrl(longUrl)
-			if err != nil {
-				return nil, err
-			}
-			id, err := r.CreateNewURL(ctx, shortUrl, longUrl)
-			if err != nil {
-				return nil, err
-			}
-			url.ID, url.ShortUrl, url.LongUrl, url.CreatedAt = id, shortUrl.ShortUrl, longUrl.LongUrl, time.Now()
-		} else {
-			return nil, err
+		if isNoRowsError(err) {
+			return nil, model.ErrorNoteNotFound
 		}
+		log.Printf("QueryRow failed: %s", err)
+
+		return nil, err
 
 	}
 
-	return &url, nil
+	return converter.ToUrlFullInfoFromRepo(&url), nil
+}
+
+func isNoRowsError(err error) bool {
+	// Прямое сравнение с pgx.ErrNoRows
+	if errors.Is(err, pgx.ErrNoRows) {
+		return true
+	}
+
+	// Проверка через PgError
+	var pgErr *pgconn.PgError
+	if errors.As(err, &pgErr) {
+		return pgErr.Code == "02000" // Код "no data found"
+	}
+
+	// Проверка текста
+	if strings.Contains(strings.ToLower(err.Error()), "no rows") {
+		return true
+	}
+
+	return false
 }

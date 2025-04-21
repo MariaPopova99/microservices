@@ -41,19 +41,19 @@ func (s *server) GetShort(ctx context.Context, req *desc.GetShortRequest) (*desc
 	}
 
 	return &desc.GetShortResponse{
-		Short_Url: shortUrl.ShortUrl,
+		ShortUrl:  shortUrl.ShortUrl,
 		CreatedAt: timestamppb.New(shortUrl.CreatedAt),
 	}, nil
 }
 
 func (s *server) GetLong(ctx context.Context, req *desc.GetLongRequest) (*desc.GetLongResponse, error) {
-	longtUrl, err := s.urlService.GetLong(ctx, converter.ToShortUrlsFromDesc(req))
+	longtURL, err := s.urlService.GetLong(ctx, converter.ToShortUrlsFromDesc(req))
 	if err != nil {
 		return nil, err
 	}
 	return &desc.GetLongResponse{
-		Long_Url:  longtUrl.LongUrl,
-		CreatedAt: timestamppb.New(longtUrl.CreatedAt),
+		LongUrl:   longtURL.LongUrl,
+		CreatedAt: timestamppb.New(longtURL.CreatedAt),
 	}, nil
 }
 
