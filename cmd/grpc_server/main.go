@@ -9,14 +9,11 @@ import (
 	urlsApi "github.com/MariaPopova99/microservices/internal/api/urls"
 	configg "github.com/MariaPopova99/microservices/internal/config"
 	config "github.com/MariaPopova99/microservices/internal/config/env"
-	"github.com/MariaPopova99/microservices/internal/converter"
 	urls "github.com/MariaPopova99/microservices/internal/repository/urls"
-	"github.com/MariaPopova99/microservices/internal/service"
 	serv "github.com/MariaPopova99/microservices/internal/service/urls"
 	"github.com/jackc/pgx/v5/pgxpool"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/reflection"
-	"google.golang.org/protobuf/types/known/timestamppb"
 
 	desc "github.com/MariaPopova99/microservices/pkg/note_v1"
 )
@@ -25,36 +22,6 @@ var configPath string
 
 func init() {
 	flag.StringVar(&configPath, "config-path", ".env", "path to config file")
-}
-
-//const grpcPort = 50051
-
-type server struct {
-	desc.UnimplementedLongShortV1Server
-	urlService service.LongShortService
-}
-
-func (s *server) GetShort(ctx context.Context, req *desc.GetShortRequest) (*desc.GetShortResponse, error) {
-	shortUrl, err := s.urlService.GetShort(ctx, converter.ToLongUrlsFromDesc(req))
-	if err != nil {
-		return nil, err
-	}
-
-	return &desc.GetShortResponse{
-		ShortUrl:  shortUrl.ShortUrl,
-		CreatedAt: timestamppb.New(shortUrl.CreatedAt),
-	}, nil
-}
-
-func (s *server) GetLong(ctx context.Context, req *desc.GetLongRequest) (*desc.GetLongResponse, error) {
-	longtURL, err := s.urlService.GetLong(ctx, converter.ToShortUrlsFromDesc(req))
-	if err != nil {
-		return nil, err
-	}
-	return &desc.GetLongResponse{
-		LongUrl:   longtURL.LongUrl,
-		CreatedAt: timestamppb.New(longtURL.CreatedAt),
-	}, nil
 }
 
 func main() {

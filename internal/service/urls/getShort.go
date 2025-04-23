@@ -19,27 +19,27 @@ const (
 func (s *serv) GetShort(ctx context.Context, longUrl *model.LongUrls) (*model.UrlFullInfo, error) {
 	log.Printf("GetShort server started: %s", longUrl.LongUrl)
 	shortUrl, err := s.urlRepository.GetShort(ctx, longUrl)
-	log.Printf("GetShort server started err: %s", err)
+
 	if err != nil {
-		if errors.Is(err, model.ErrorNoteNotFound) {
-			log.Printf("GetShort server started err dd: %s", err)
-			shortUrl, err := GenerateShortUrl(longUrl)
-			if err != nil {
-				return nil, err
-			}
-			id, err := s.urlRepository.CreateNewURL(ctx, shortUrl, longUrl)
-			if err != nil {
-				return nil, err
-			}
-			return &model.UrlFullInfo{
-				ID:        id,
-				ShortUrl:  shortUrl.ShortUrl,
-				LongUrl:   longUrl.LongUrl,
-				CreatedAt: time.Now(),
-				UpdatedAt: sql.NullTime{Time: time.Now(), Valid: false},
-			}, nil
+		if !errors.Is(err, model.ErrorNoteNotFound) {
+			return nil, err
 		}
-		return nil, err
+
+		shortUrl, err := GenerateShortUrl(longUrl)
+		if err != nil {
+			return nil, err
+		}
+		id, err := s.urlRepository.CreateNewURL(ctx, shortUrl, longUrl)
+		if err != nil {
+			return nil, err
+		}
+		return &model.UrlFullInfo{
+			ID:        id,
+			ShortUrl:  shortUrl.ShortUrl,
+			LongUrl:   longUrl.LongUrl,
+			CreatedAt: time.Now(),
+			UpdatedAt: sql.NullTime{Time: time.Now(), Valid: false},
+		}, nil
 	}
 	return shortUrl, nil
 }
