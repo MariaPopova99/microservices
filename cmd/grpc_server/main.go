@@ -6,15 +6,14 @@ import (
 	"log"
 	"net"
 
+	urlsApi "github.com/MariaPopova99/microservices/internal/api/urls"
 	configg "github.com/MariaPopova99/microservices/internal/config"
 	config "github.com/MariaPopova99/microservices/internal/config/env"
-	"github.com/MariaPopova99/microservices/internal/model"
-	repository "github.com/MariaPopova99/microservices/internal/repository/urls"
-	urls "github.com/MariaPopova99/microservices/internal/repository/urls/model"
-	"github.com/jackc/pgx/v4/pgxpool"
+	urls "github.com/MariaPopova99/microservices/internal/repository/urls"
+	serv "github.com/MariaPopova99/microservices/internal/service/urls"
+	"github.com/jackc/pgx/v5/pgxpool"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/reflection"
-	"google.golang.org/protobuf/types/known/timestamppb"
 
 	desc "github.com/MariaPopova99/microservices/pkg/note_v1"
 )
@@ -23,36 +22,6 @@ var configPath string
 
 func init() {
 	flag.StringVar(&configPath, "config-path", ".env", "path to config file")
-}
-
-//const grpcPort = 50051
-
-type server struct {
-	desc.UnimplementedLongShortV1Server
-	urlRepository repository.LongShortRepository
-}
-
-func (s *server) GetShort(ctx context.Context, req *desc.GetShortRequest) (*desc.GetShortResponse, error) {
-	shortUrl, err := s.urlRepository.GetShort(ctx, &model.LongUrls{req.GetLong_Url()})
-	if err != nil {
-		return nil, err
-	}
-
-	return &desc.GetShortResponse{
-		Short_Url: shortUrl.ShortUrl,
-		CreatedAt: timestamppb.New(shortUrl.CreatedAt),
-	}, nil
-}
-
-func (s *server) GetLong(ctx context.Context, req *desc.GetLongRequest) (*desc.GetLongResponse, error) {
-	longtUrl, err := s.urlRepository.GetLong(ctx, &model.ShortUrls{req.GetShort_Url()})
-	if err != nil {
-		return nil, err
-	}
-	return &desc.GetLongResponse{
-		Long_Url:  longtUrl.LongUrl,
-		CreatedAt: timestamppb.New(longtUrl.CreatedAt),
-	}, nil
 }
 
 func main() {
@@ -81,17 +50,18 @@ func main() {
 	}
 
 	// Создаем пул соединений с базой данных
-	pool, err := pgxpool.Connect(ctx, pgConfig.DSN())
+	pool, err := pgxpool.New(ctx, pgConfig.DSN())
 	if err != nil {
 		log.Fatalf("failed to connect to database: %v", err)
 	}
 	defer pool.Close()
 
 	urlRepo := urls.NewRepository(pool)
+	ursServ := serv.NewService(urlRepo)
 
 	s := grpc.NewServer()
 	reflection.Register(s)
-	desc.RegisterLongShortV1Server(s, &server{urlRepository: urlRepo})
+	desc.RegisterLongShortV1Server(s, urlsApi.NewImplementation(ursServ))
 
 	log.Printf("server listening at %v", lis.Addr())
 
