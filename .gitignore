@@ -2,3 +2,5 @@
 /bin/
 /postgres/bin/
 /mycommands/
+/cmd/test_ignore/
+/coverage.out
